@@ -20,7 +20,7 @@ library
   other-modules:       Cudd.ForeignHelpers
   other-extensions:    ForeignFunctionInterface, CPP, FlexibleContexts,
                        RankNTypes, EmptyDataDecls
-  build-depends:       base >=4.6 && <4.8, mtl >=2.1 && <2.3,
+  build-depends:       base >=4.6 && <4.9, mtl >=2.1 && <2.3,
                        array >=0.4 && <0.6, transformers >=0.3 && <0.5
   -- hs-source-dirs:      
   build-tools:         c2hs, hsc2hs
