@@ -3,3 +3,5 @@ Makefile
 *.a
 include
 nanotrav
+.stack-work/
+dist/
