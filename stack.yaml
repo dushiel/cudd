@@ -1,6 +1,4 @@
-resolver: lts-6.0
-
+resolver: lts-7.0
 packages:
 - '.'
-
 system-ghc: false
