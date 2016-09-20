@@ -108,6 +108,7 @@ install:
     cabal)
       cabal --version
       travis_retry cabal update
+      travis_retry cabal install c2hs
       cabal install --only-dependencies --enable-tests --enable-benchmarks --force-reinstalls --ghc-options=-O0 --reorder-goals --max-backjumps=-1 $PACKAGES
       ;;
   esac
@@ -121,6 +122,7 @@ script:
       stack --no-terminal $ARGS test --bench --no-run-benchmarks --haddock --no-haddock-deps
       ;;
     cabal)
+      travis_retry cabal install c2hs
       cabal install --enable-tests --enable-benchmarks --force-reinstalls --ghc-options=-O0 --reorder-goals --max-backjumps=-1 $PACKAGES
 
       ORIGDIR=$(pwd)
