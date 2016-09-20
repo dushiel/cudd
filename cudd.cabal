@@ -1,7 +1,7 @@
 name:                cudd
 version:             0.1.0.0
 synopsis:            Bindings to the CUDD binary decision diagrams library
--- description:         
+description:         Stand-alone package containing CUDD 2.5.0.
 license:             BSD3
 license-file:        LICENSE
 author:              Adam Walker
@@ -9,9 +9,7 @@ maintainer:          adam.walker@nicta.com.au
 copyright:           2014 Adam Walker
 category:            Data
 build-type:          Simple
--- extra-source-files:  
 cabal-version:       >=1.10
-
 
 library
   exposed-modules:     Cudd.File, Cudd.Convert, Cudd.Reorder, Cudd.MTR,
@@ -20,13 +18,14 @@ library
   other-modules:       Cudd.ForeignHelpers
   other-extensions:    ForeignFunctionInterface, CPP, FlexibleContexts,
                        RankNTypes, EmptyDataDecls
-  build-depends:       base >=4.6 && <4.10, mtl >=2.1 && <2.3,
-                       array >=0.4 && <0.6, transformers >=0.3 && <0.6
-  -- hs-source-dirs:      
+  build-depends:       base >=4.6 && <4.10,
+                       mtl >=2.1 && <2.3,
+                       array >=0.4 && <0.6,
+                       transformers >=0.3 && <0.6
   build-tools:         c2hs, hsc2hs
   default-language:    Haskell2010
   include-dirs:        . cudd dddmp epd mtr st util
-  cc-options:          -g -O3 -fpic -mtune=native -DHAVE_IEEE_754 -DSIZEOF_VOID_P=8 -DSIZEOF_LONG=8
+  cc-options:          -g -fpic -mtune=native -DHAVE_IEEE_754 -DSIZEOF_VOID_P=8 -DSIZEOF_LONG=8
   c-sources:           haskell_stubs/cuddwrap.c, haskell_stubs/stubs.c,
                        cudd/cuddAPI.c, cudd/cuddAddAbs.c, cudd/cuddAddApply.c,
                        cudd/cuddAddFind.c, cudd/cuddAddIte.c,
@@ -69,3 +68,7 @@ library
                        util/prtime.c, util/pipefork.c, util/pathsearch.c,
                        util/stub.c, util/datalimit.c
   extra-libraries:     m
+
+source-repository head
+  type:     git
+  location: https://github.com/m4lvin/cudd.git
