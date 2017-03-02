@@ -10,15 +10,8 @@ module Cudd.GC (
     regPostGCHook
     ) where
 
-import System.IO
 import Foreign
-import Foreign.Ptr
 import Foreign.C.Types
-import Foreign.C.String
-import Foreign.ForeignPtr
-import Foreign.Marshal.Array
-import Foreign.Marshal.Utils
-import Control.Monad
 import Control.Monad.ST
 import Control.Monad.ST.Unsafe
 
@@ -42,7 +35,7 @@ foreign import ccall safe "cudd.h Cudd_GarbageCollectionEnabled"
     c_cuddGarbageCollectionEnabled :: Ptr CDdManager -> IO CInt
 
 cuddGarbageCollectionEnabled :: STDdManager s u -> ST s Int
-cuddGarbageCollectionEnabled (STDdManager m) = unsafeIOToST $ liftM fromIntegral $ c_cuddGarbageCollectionEnabled m
+cuddGarbageCollectionEnabled (STDdManager m) = unsafeIOToST $ fromIntegral <$> c_cuddGarbageCollectionEnabled m
 
 foreign import ccall safe "cuddwrap.h &preGCHook_sample"
     c_preGCHook_sample :: HookFP

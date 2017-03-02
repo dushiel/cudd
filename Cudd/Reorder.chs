@@ -26,23 +26,19 @@ module Cudd.Reorder (
     cuddReadMaxGrowthAlternate,
     cuddSetMaxGrowthAlternate,
     cuddReadMaxGrowth,
+    cuddSetMaxGrowth,
     cuddReadReorderingCycle,
     cuddSetReorderingCycle,
     cuddSetPopulationSize,
+    cuddReadPopulationSize,
     cuddReadNumberXovers,
     cuddSetNumberXovers,
     regReordGCHook
     ) where
 
-import System.IO
 import System.Mem
 import Foreign
-import Foreign.Ptr
 import Foreign.C.Types
-import Foreign.C.String
-import Foreign.ForeignPtr
-import Foreign.Marshal.Array
-import Foreign.Marshal.Utils
 import Control.Monad
 import Control.Monad.ST
 import Control.Monad.ST.Unsafe
@@ -61,7 +57,7 @@ setIntegral :: (Integral i, Num j) => (Ptr CDdManager -> j -> IO ()) -> STDdMana
 setIntegral f (STDdManager m) v = unsafeIOToST $ f m (fromIntegral v)
 
 readFloat :: (Real r, Fractional f) => (Ptr CDdManager -> IO r) -> STDdManager s u -> ST s f
-readFloat f (STDdManager m) = unsafeIOToST $ liftM realToFrac $ f m 
+readFloat f (STDdManager m) = unsafeIOToST $ liftM realToFrac $ f m
 
 setFloat :: (Real r, Fractional f) => (Ptr CDdManager -> f -> IO ()) -> STDdManager s u -> r -> ST s ()
 setFloat f (STDdManager m) v = unsafeIOToST $ f m (realToFrac v)
@@ -183,7 +179,7 @@ foreign import ccall safe "cudd.h Cudd_SetSiftMaxSwap"
     c_cuddSetSiftMaxSwap :: Ptr CDdManager -> CInt -> IO ()
 
 cuddSetSiftMaxSwap :: STDdManager s u -> Int -> ST s ()
-cuddSetSiftMaxSwap = setIntegral c_cuddSetSiftMaxSwap 
+cuddSetSiftMaxSwap = setIntegral c_cuddSetSiftMaxSwap
 
 foreign import ccall safe "cudd.h Cudd_ReadSiftMaxVar"
     c_cuddReadSiftMaxVar :: Ptr CDdManager -> IO (Int)
@@ -275,7 +271,7 @@ reordGCHook _ _ _ = do
     --putStrLn "reordGCHook"
     performGC
     --putStrLn "gc done"
-    return (fromIntegral 1)
+    return (fromInteger 1)
 
 foreign import ccall "wrapper"
     makeFunPtr :: HookTyp -> IO (FunPtr HookTyp)

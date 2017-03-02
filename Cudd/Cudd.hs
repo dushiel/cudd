@@ -99,7 +99,7 @@ cuddInit = DdManager $ unsafePerformIO $ c_cuddInit 0 0 (fromIntegral cudd_uniqu
 
 cuddInitOrder :: [Int] -> DdManager
 cuddInitOrder order = DdManager $ unsafePerformIO $ withArrayLen (map fromIntegral order) $ \size ptr -> do
-    when (sort order /= [0..size-1]) (error "cuddInitOrder: order does not contain each variable once") 
+    when (sort order /= [0..size-1]) (error "cuddInitOrder: order does not contain each variable once")
     m <- c_cuddInit (fromIntegral size) 0 (fromIntegral cudd_unique_slots) (fromIntegral cudd_cache_slots) 0
     res <- c_cuddShuffleHeap m ptr
     when (res /= 1) (error "shuffleHeap failed")
@@ -127,20 +127,20 @@ cuddBddIthVar (DdManager d) i = DdNode $ unsafePerformIO $ do
     newForeignPtr_ node
 
 cuddArg1 :: (Ptr CDdManager -> Ptr CDdNode -> IO (Ptr CDdNode)) -> DdManager -> DdNode -> DdNode
-cuddArg1 f (DdManager m) (DdNode x) = DdNode $ unsafePerformIO $ 
+cuddArg1 f (DdManager m) (DdNode x) = DdNode $ unsafePerformIO $
     withForeignPtr x $ \xp -> do
     node <- f m xp
     newForeignPtrEnv deref m node
 
 cuddArg2 :: (Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> IO (Ptr CDdNode)) -> DdManager -> DdNode -> DdNode -> DdNode
-cuddArg2 f (DdManager m) (DdNode l) (DdNode r) = DdNode $ unsafePerformIO $ 
+cuddArg2 f (DdManager m) (DdNode l) (DdNode r) = DdNode $ unsafePerformIO $
     withForeignPtr l $ \lp ->
     withForeignPtr r $ \rp -> do
     node <- f m lp rp
     newForeignPtrEnv deref m node
 
 cuddArg3 :: (Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> Ptr CDdNode -> IO (Ptr CDdNode)) -> DdManager -> DdNode -> DdNode-> DdNode -> DdNode
-cuddArg3 f (DdManager m) (DdNode l) (DdNode r) (DdNode x) = DdNode $ unsafePerformIO $ 
+cuddArg3 f (DdManager m) (DdNode l) (DdNode r) (DdNode x) = DdNode $ unsafePerformIO $
     withForeignPtr l $ \lp ->
     withForeignPtr r $ \rp ->
     withForeignPtr x $ \xp -> do
@@ -172,7 +172,7 @@ foreign import ccall safe "cuddwrap.h wrappedCuddDumpDot"
     c_cuddDumpDot :: Ptr CDdManager -> Ptr CDdNode -> CString -> IO ()
 
 cuddDumpDot :: DdManager -> DdNode -> String -> IO ()
-cuddDumpDot (DdManager m) (DdNode n) s  = 
+cuddDumpDot (DdManager m) (DdNode n) s  =
     withForeignPtr n $ \np ->
         withCAString s $ \str ->
             c_cuddDumpDot m np str
@@ -182,14 +182,14 @@ foreign import ccall safe "cuddwrap.h wrappedCuddIsComplement"
 
 cuddEval :: DdManager -> DdNode -> [Int] -> Bool
 cuddEval (DdManager m) (DdNode n) a = unsafePerformIO $ do
-    res <- withArray (map fromIntegral a) $ \ap -> 
-        withForeignPtr n $ \np -> 
-            c_cuddEval m np ap
+    res <- withArray (map fromIntegral a) $ \app ->
+        withForeignPtr n $ \np ->
+            c_cuddEval m np app
     return $ (==0) $ c_cuddIsComplement res
 
 cuddPrintMinterm :: DdManager -> DdNode -> IO ()
-cuddPrintMinterm (DdManager m) (DdNode n) = 
-    withForeignPtr n $ c_cuddPrintMinterm m 
+cuddPrintMinterm (DdManager m) (DdNode n) =
+    withForeignPtr n $ c_cuddPrintMinterm m
 
 foreign import ccall safe "cuddwrap.h allSat"
     c_allSat :: Ptr CDdManager -> Ptr CDdNode -> Ptr CInt -> Ptr CInt -> IO (Ptr (Ptr CInt))
@@ -198,51 +198,51 @@ foreign import ccall safe "cuddwrap.h oneSat"
     c_oneSat :: Ptr CDdManager -> Ptr CDdNode -> Ptr CInt -> IO (Ptr CInt)
 
 cuddAllSat :: DdManager -> DdNode -> [[SatBit]]
-cuddAllSat (DdManager m) (DdNode n) = unsafePerformIO $ 
-    alloca $ \nvarsptr -> 
-    alloca $ \ntermsptr -> 
+cuddAllSat (DdManager m) (DdNode n) = unsafePerformIO $
+    alloca $ \nvarsptr ->
+    alloca $ \ntermsptr ->
     withForeignPtr n $ \np -> do
     res <- c_allSat m np ntermsptr nvarsptr
-    nterms <- liftM fromIntegral $ peek ntermsptr
-    res <- peekArray nterms res
-    nvars <- liftM fromIntegral $ peek nvarsptr
-    res <- mapM (peekArray nvars) res
-    return $ map (map (toSatBit . fromIntegral)) res
+    nterms <- fromIntegral <$> peek ntermsptr
+    res2 <- peekArray nterms res
+    nvars <- fromIntegral <$> peek nvarsptr
+    res3 <- mapM (peekArray nvars) res2
+    return $ map (map (toSatBit . fromIntegral)) res3
 
 cuddOneSat :: DdManager -> DdNode -> Maybe [SatBit]
-cuddOneSat (DdManager m) (DdNode n) = unsafePerformIO $ 
+cuddOneSat (DdManager m) (DdNode n) = unsafePerformIO $
     alloca $ \nvarsptr ->
     withForeignPtr n $ \np -> do
     res <- c_oneSat m np nvarsptr
     if res==nullPtr then return Nothing else do
-        nvars <- liftM fromIntegral $ peek nvarsptr
-        res <- peekArray nvars res
-        return $ Just $ map (toSatBit . fromIntegral) res
+        nvars <- fromIntegral <$> peek nvarsptr
+        res2 <- peekArray nvars res
+        return $ Just $ map (toSatBit . fromIntegral) res2
 
 foreign import ccall safe "cuddwrap.h onePrime"
     c_onePrime :: Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> Ptr CInt -> IO (Ptr CInt)
 
 cuddOnePrime :: DdManager -> DdNode -> DdNode -> Maybe [Int]
-cuddOnePrime (DdManager m) (DdNode l) (DdNode u) = unsafePerformIO $ 
-    alloca $ \nvarsptr -> 
-    withForeignPtr l $ \lp -> 
+cuddOnePrime (DdManager m) (DdNode l) (DdNode u) = unsafePerformIO $
+    alloca $ \nvarsptr ->
+    withForeignPtr l $ \lp ->
     withForeignPtr u $ \up -> do
     res <- c_onePrime m lp up nvarsptr
     if res==nullPtr then return Nothing else do
-        nvars <- liftM fromIntegral $ peek nvarsptr
-        res <- peekArray nvars res
-        return $ Just $ map fromIntegral res
+        nvars <- fromIntegral <$> peek nvarsptr
+        res2 <- peekArray nvars res
+        return $ Just $ map fromIntegral res2
 
 cuddReadSize :: DdManager -> Int
 cuddReadSize (DdManager m) = fromIntegral $ unsafePerformIO $ c_cuddReadSize m
 
 cuddSupportIndex :: DdManager -> DdNode -> [Bool]
-cuddSupportIndex (DdManager m) (DdNode n) = unsafePerformIO $ 
+cuddSupportIndex (DdManager m) (DdNode n) = unsafePerformIO $
     withForeignPtr n $ \np -> do
         res <- c_cuddSupportIndex m np
         size <- c_cuddReadSize m
-        res <- peekArray (fromIntegral size) res
-        return $ map toBool res
+        res2 <- peekArray (fromIntegral size) res
+        return $ map toBool res2
 
 cuddBddExistAbstract :: DdManager -> DdNode -> DdNode -> DdNode
 cuddBddExistAbstract = cuddArg2 c_cuddBddExistAbstract
@@ -254,79 +254,80 @@ cuddBddIte :: DdManager -> DdNode -> DdNode -> DdNode -> DdNode
 cuddBddIte = cuddArg3 c_cuddBddIte
 
 cuddBddSwapVariables :: DdManager -> DdNode -> [DdNode] -> [DdNode] -> DdNode
-cuddBddSwapVariables (DdManager m) (DdNode d) s1 s2 = DdNode $ unsafePerformIO $ 
-    withForeignPtr d $ \dp -> 
-    withForeignArrayPtrLen (map unDdNode s1) $ \s1 s1ps -> 
-    withForeignArrayPtrLen (map unDdNode s2) $ \s2 s2ps -> do
-    when (s1 /= s2) (error "cuddBddSwapVariables: variable lists have different sizes")
-    node <- c_cuddBddSwapVariables m dp s1ps s2ps (fromIntegral s1)
+cuddBddSwapVariables (DdManager m) (DdNode d) s1 s2 = DdNode $ unsafePerformIO $
+    withForeignPtr d $ \dp ->
+    withForeignArrayPtrLen (map unDdNode s1) $ \s1p s1ps ->
+    withForeignArrayPtrLen (map unDdNode s2) $ \s2p s2ps -> do
+    when (s1p /= s2p) (error "cuddBddSwapVariables: variable lists have different sizes")
+    node <- c_cuddBddSwapVariables m dp s1ps s2ps (fromIntegral s1p)
     newForeignPtrEnv deref m node
 
-cuddBddPermute :: DdManager -> DdNode -> [Int] -> DdNode 
-cuddBddPermute (DdManager m) (DdNode d) indexes = DdNode $ unsafePerformIO $ 
-    withForeignPtr d $ \dp -> 
+cuddBddPermute :: DdManager -> DdNode -> [Int] -> DdNode
+cuddBddPermute (DdManager m) (DdNode d) indexes = DdNode $ unsafePerformIO $
+    withForeignPtr d $ \dp ->
     withArray (map fromIntegral indexes) $ \ip -> do
-    node <- c_cuddBddPermute m dp ip 
+    node <- c_cuddBddPermute m dp ip
     newForeignPtrEnv deref m node
 
 makePermutArray :: Int -> [Int] -> [Int] -> [Int]
 makePermutArray size x y = elems $ accumArray (flip const) 0 (0, size-1) ascList
     where
-    ascList = [(i, i) | i <- [0..size-1]] ++ zip x y 
+    ascList = [(i, i) | i <- [0..size-1]] ++ zip x y
 
 cuddBddShift :: DdManager -> DdNode -> [Int] -> [Int] -> DdNode
 cuddBddShift (DdManager m) (DdNode d) from to = DdNode $ unsafePerformIO $
-    withForeignPtr d $ \dp -> do
-    dp <- evaluate dp
-    size <- c_cuddReadSize m 
+    withForeignPtr d $ \dp0 -> do
+    dp <- evaluate dp0
+    size <- c_cuddReadSize m
     let perm = makePermutArray (fromIntegral size) from to
     withArray (map fromIntegral perm) $ \pp -> do
         node <- c_cuddBddPermute m dp pp
         newForeignPtrEnv deref m node
 
 cuddXgty :: DdManager -> [DdNode] -> [DdNode] -> DdNode
-cuddXgty (DdManager m) x y = DdNode $ unsafePerformIO $ 
-    withForeignArrayPtrLen (map unDdNode x) $ \xl xp -> 
+cuddXgty (DdManager m) x y = DdNode $ unsafePerformIO $
+    withForeignArrayPtrLen (map unDdNode x) $ \xl xp ->
     withForeignArrayPtrLen (map unDdNode y) $ \yl yp -> do
     when (xl /= yl) (error "cuddXgty: variable lists have different sizes")
     node <- c_cuddXgty m (fromIntegral xl) nullPtr xp yp
     newForeignPtrEnv deref m node
 
 cuddXeqy :: DdManager -> [DdNode] -> [DdNode] -> DdNode
-cuddXeqy (DdManager m) x y = DdNode $ unsafePerformIO $ 
-    withForeignArrayPtrLen (map unDdNode x) $ \xl xp -> 
+cuddXeqy (DdManager m) x y = DdNode $ unsafePerformIO $
+    withForeignArrayPtrLen (map unDdNode x) $ \xl xp ->
     withForeignArrayPtrLen (map unDdNode y) $ \yl yp -> do
     when (xl /= yl) (error "cuddXeqy: variable lists have different sizes")
     node <- c_cuddXeqy m (fromIntegral xl) xp yp
     newForeignPtrEnv deref m node
 
 cuddInequality :: DdManager -> Int -> Int -> [DdNode] -> [DdNode] -> DdNode
-cuddInequality (DdManager m) n c x y = DdNode $ unsafePerformIO $ 
-    withForeignArrayPtr (map unDdNode x) $ \xp -> 
+cuddInequality (DdManager m) n c x y = DdNode $ unsafePerformIO $
+    withForeignArrayPtr (map unDdNode x) $ \xp ->
     withForeignArrayPtr (map unDdNode y) $ \yp -> do
     node <- c_cuddInequality m (fromIntegral n) (fromIntegral c) xp yp
     newForeignPtrEnv deref m node
 
 cuddDisequality :: DdManager -> Int -> Int -> [DdNode] -> [DdNode] -> DdNode
 cuddDisequality (DdManager m) n c x y = DdNode $ unsafePerformIO $
-    withForeignArrayPtr (map unDdNode x) $ \xp -> 
+    withForeignArrayPtr (map unDdNode x) $ \xp ->
     withForeignArrayPtr (map unDdNode y) $ \yp -> do
     node <- c_cuddDisequality m (fromIntegral n) (fromIntegral c) xp yp
     newForeignPtrEnv deref m node
 
 cuddBddInterval :: DdManager -> [DdNode] -> Int -> Int -> DdNode
-cuddBddInterval (DdManager m) vararr lower upper =  DdNode $ unsafePerformIO $ 
+cuddBddInterval (DdManager m) vararr lower upper =  DdNode $ unsafePerformIO $
     withForeignArrayPtrLen (map unDdNode vararr) $ \sz vp -> do
     node <- c_cuddBddInterval m (fromIntegral sz) vp (fromIntegral lower) (fromIntegral upper)
     newForeignPtrEnv deref m node
 
 cuddNodeReadIndex :: DdNode -> Int
-cuddNodeReadIndex (DdNode d) = fromIntegral $ unsafePerformIO $ withForeignPtr d c_cuddNodeReadIndex 
+cuddNodeReadIndex (DdNode d) = fromIntegral $ unsafePerformIO $ withForeignPtr d c_cuddNodeReadIndex
 
-cuddDagSize (DdNode d) = fromIntegral $ unsafePerformIO $ withForeignPtr d c_cuddDagSize 
+cuddDagSize :: Num b => DdNode -> b
+cuddDagSize (DdNode d) = fromIntegral $ unsafePerformIO $ withForeignPtr d c_cuddDagSize
 
 cuddIndicesToCube :: DdManager -> [Int] -> DdNode
-cuddIndicesToCube (DdManager m) indices = DdNode $ unsafePerformIO $ 
+cuddIndicesToCube (DdManager m) indices = DdNode $ unsafePerformIO $
     withArrayLen (map fromIntegral indices) $ \size ip -> do
     node <- c_cuddIndicesToCube m ip (fromIntegral size)
     newForeignPtrEnv deref m node
@@ -339,7 +340,7 @@ cuddBddMinimize = cuddArg2 c_cuddBddMinimize
 
 --Bdd implication
 cuddBddImp :: DdManager -> DdNode -> DdNode -> DdNode
-cuddBddImp m l r = cuddBddOr m (cuddNot m l) r
+cuddBddImp m l = cuddBddOr m (cuddNot m l)
 
 cuddBddPickOneMinterm :: DdManager -> DdNode -> [DdNode] -> Maybe DdNode
 cuddBddPickOneMinterm (DdManager m) (DdNode d) vars = unsafePerformIO $
@@ -354,7 +355,7 @@ foreign import ccall safe "cudd.h Cudd_PrintInfo"
     c_cuddPrintInfo :: Ptr CDdManager -> Ptr CFile -> IO CInt
 
 cuddPrintInfo :: DdManager -> Ptr CFile -> IO Int
-cuddPrintInfo (DdManager m) cf = liftM fromIntegral $ c_cuddPrintInfo m cf
+cuddPrintInfo (DdManager m) cf = fromIntegral <$> c_cuddPrintInfo m cf
 
 cuddReadPerm :: DdManager -> Int -> Int
 cuddReadPerm (DdManager m) i = fromIntegral $ unsafePerformIO $ c_cuddReadPerm m (fromIntegral i)
@@ -368,18 +369,18 @@ cuddReadPerms m = map (cuddReadPerm m) [0..(cuddReadSize m - 1)]
 cuddReadInvPerms :: DdManager -> [Int]
 cuddReadInvPerms m = map (cuddReadInvPerm m) [0..(cuddReadSize m -1)]
 
-cuddReadTree :: DdManager -> IO (Ptr CMtrNode) 
+cuddReadTree :: DdManager -> IO (Ptr CMtrNode)
 cuddReadTree (DdManager m) = c_cuddReadTree m
 
 cuddCountLeaves :: DdNode -> Int
-cuddCountLeaves (DdNode d) = fromIntegral $ unsafePerformIO $ 
-    withForeignPtr d $ \dp -> 
+cuddCountLeaves (DdNode d) = fromIntegral $ unsafePerformIO $
+    withForeignPtr d $ \dp ->
     c_cuddCountLeaves dp
 
 cuddCountMinterm :: DdManager -> DdNode -> Int -> Double
 cuddCountMinterm (DdManager m) (DdNode d) n = realToFrac $ unsafePerformIO $
-    withForeignPtr d $ \dp -> 
-    c_cuddCountMinterm m dp (fromIntegral n) 
+    withForeignPtr d $ \dp ->
+    c_cuddCountMinterm m dp (fromIntegral n)
 
 cuddCountPathsToNonZero :: DdNode -> Double
 cuddCountPathsToNonZero (DdNode d) = realToFrac $ unsafePerformIO $
@@ -388,25 +389,25 @@ cuddCountPathsToNonZero (DdNode d) = realToFrac $ unsafePerformIO $
 
 cuddCountPath :: DdNode -> Double
 cuddCountPath (DdNode d) = realToFrac $ unsafePerformIO $
-    withForeignPtr d $ \dp -> 
+    withForeignPtr d $ \dp ->
     c_cuddCountPath dp
 
 foreign import ccall safe "cudd.h Cudd_PrintDebug"
     c_cuddPrintDebug :: Ptr CDdManager -> Ptr CDdNode -> CInt -> CInt -> IO CInt
 
 cuddPrintDebug :: DdManager -> DdNode -> Int -> Int -> IO Int
-cuddPrintDebug (DdManager m) (DdNode d) n pr = liftM fromIntegral $ 
-    withForeignPtr d $ \dp -> 
+cuddPrintDebug (DdManager m) (DdNode d) n pr = fmap fromIntegral $
+    withForeignPtr d $ \dp ->
     c_cuddPrintDebug m dp (fromIntegral n) (fromIntegral pr)
 
-cuddBddAndAbstract :: DdManager -> DdNode -> DdNode -> DdNode -> DdNode  
+cuddBddAndAbstract :: DdManager -> DdNode -> DdNode -> DdNode -> DdNode
 cuddBddAndAbstract = cuddArg3 c_cuddBddAndAbstract
 
-cuddBddXorExistAbstract :: DdManager -> DdNode -> DdNode -> DdNode -> DdNode  
+cuddBddXorExistAbstract :: DdManager -> DdNode -> DdNode -> DdNode -> DdNode
 cuddBddXorExistAbstract = cuddArg3 c_cuddBddXorExistAbstract
 
 cuddBddTransfer :: DdManager -> DdManager -> DdNode -> DdNode
-cuddBddTransfer (DdManager m1) (DdManager m2) (DdNode x) = DdNode $ unsafePerformIO $ 
+cuddBddTransfer (DdManager m1) (DdManager m2) (DdNode x) = DdNode $ unsafePerformIO $
     withForeignPtr x $ \xp -> do
         node <- c_cuddBddTransfer m1 m2 xp
         newForeignPtrEnv deref m2 node
@@ -424,7 +425,7 @@ cuddBddSqueeze :: DdManager -> DdNode -> DdNode -> DdNode
 cuddBddSqueeze = cuddArg2 c_cuddBddSqueeze
 
 cuddLargestCube :: DdManager -> DdNode -> (Int, DdNode)
-cuddLargestCube (DdManager m) (DdNode n) = unsafePerformIO $ 
+cuddLargestCube (DdManager m) (DdNode n) = unsafePerformIO $
     alloca $ \lp ->
     withForeignPtr n $ \np -> do
     node <- c_cuddLargestCube m np lp
@@ -433,17 +434,16 @@ cuddLargestCube (DdManager m) (DdNode n) = unsafePerformIO $
     return (fromIntegral l, DdNode res)
 
 cuddBddLeq :: DdManager -> DdNode -> DdNode -> Bool
-cuddBddLeq (DdManager m) (DdNode l) (DdNode r) = (==1) $ unsafePerformIO $ 
-    withForeignPtr l $ \lp -> 
+cuddBddLeq (DdManager m) (DdNode l) (DdNode r) = (==1) $ unsafePerformIO $
+    withForeignPtr l $ \lp ->
     withForeignPtr r $ \rp ->
     c_cuddBddLeq m lp rp
 
 cuddCheckKeys :: DdManager -> ST s Int
-cuddCheckKeys (DdManager m) = liftM fromIntegral $ unsafeIOToST $ c_cuddCheckKeys m
+cuddCheckKeys (DdManager m) = fmap fromIntegral $ unsafeIOToST $ c_cuddCheckKeys m
 
 cuddDebugCheck :: DdManager -> ST s Int
-cuddDebugCheck (DdManager m) = liftM fromIntegral $ unsafeIOToST $ c_cuddDebugCheck m
+cuddDebugCheck (DdManager m) = fmap fromIntegral $ unsafeIOToST $ c_cuddDebugCheck m
 
 ddNodeToInt :: Integral i => DdNode -> i
-ddNodeToInt = fromIntegral . ptrToIntPtr . unsafeForeignPtrToPtr . unDdNode 
-
+ddNodeToInt = fromIntegral . ptrToIntPtr . unsafeForeignPtrToPtr . unDdNode

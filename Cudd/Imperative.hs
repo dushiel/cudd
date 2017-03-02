@@ -3,7 +3,7 @@
 module Cudd.Imperative (
     cuddInit,
     cuddInitDefaults,
-    withManager, 
+    withManager,
     withManagerDefaults,
     withManagerIO,
     withManagerIODefaults,
@@ -78,7 +78,6 @@ module Cudd.Imperative (
     ) where
 
 import Foreign hiding (void)
-import Foreign.Ptr
 import Foreign.C.Types
 import Control.Monad.ST
 import Control.Monad.ST.Unsafe
@@ -103,12 +102,12 @@ cuddInitDefaults = cuddInit 0 0 cudd_unique_slots cudd_cache_slots 0
 withManager :: Int -> Int -> Int -> Int -> Int -> (forall u. STDdManager s u -> ST s a) -> ST s a
 withManager numVars numVarsZ numSlots cacheSize maxMemory f = do
     res <- cuddInit numVars numVarsZ numSlots cacheSize maxMemory
-    f res 
+    f res
 
 withManagerDefaults :: (forall u. STDdManager s u -> ST s a) -> ST s a
 withManagerDefaults f = do
     res <- cuddInitDefaults
-    f res 
+    f res
 
 withManagerIO :: MonadIO m => Int -> Int -> Int -> Int -> Int -> (forall u. STDdManager RealWorld u -> m a) -> m a
 withManagerIO numVars numVarsZ numSlots cacheSize maxMemory f = do
@@ -121,68 +120,81 @@ withManagerIODefaults f = do
     f res
 
 shuffleHeap :: STDdManager s u -> [Int] -> ST s ()
-shuffleHeap (STDdManager m) order = unsafeIOToST $ 
+shuffleHeap (STDdManager m) order = unsafeIOToST $
     withArrayLen (map fromIntegral order) $ \size ptr -> do
-    when (sort order /= [0..size-1]) (error "shuffleHeap: order does not contain each variable once") 
+    when (sort order /= [0..size-1]) (error "shuffleHeap: order does not contain each variable once")
     res1 <- c_cuddBddIthVar m (fromIntegral (size - 1))
     when (res1 == nullPtr) (error "shuffleHeap: Failed to resize table")
     res2 <- c_cuddShuffleHeap m ptr
-    when (fromIntegral res2 /= 1) (error "shuffleHeap: Cudd_ShuffleHeap failed")
+    when (fromIntegral res2 /= (1::Integer)) (error "shuffleHeap: Cudd_ShuffleHeap failed")
     return ()
 
 toInt :: DDNode s u -> Int
 toInt (DDNode n) = fromIntegral $ ptrToIntPtr n
 
-arg0 :: (Ptr CDdManager -> IO (Ptr CDdNode)) -> STDdManager s u -> ST s (DDNode s u)
-arg0 f (STDdManager m) = liftM DDNode $ unsafeIOToST $ f m
+-- arg0 :: (Ptr CDdManager -> IO (Ptr CDdNode)) -> STDdManager s u -> ST s (DDNode s u)
+-- arg0 f (STDdManager m) = fmap DDNode $ unsafeIOToST $ f m
 
 arg1 :: (Ptr CDdManager -> Ptr CDdNode -> IO (Ptr CDdNode)) -> STDdManager s u -> DDNode s u -> ST s (DDNode s u)
-arg1 f (STDdManager m) (DDNode x) = liftM DDNode $ unsafeIOToST $ f m x
+arg1 f (STDdManager m) (DDNode x) = fmap DDNode $ unsafeIOToST $ f m x
 
 arg2 :: (Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> IO (Ptr CDdNode)) -> STDdManager s u -> DDNode s u -> DDNode s u -> ST s (DDNode s u)
-arg2 f (STDdManager m) (DDNode x) (DDNode y) = liftM DDNode $ unsafeIOToST $ f m x y
-    
-arg3 :: (Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> Ptr CDdNode -> IO (Ptr CDdNode)) -> STDdManager s u -> DDNode s u -> DDNode s u -> DDNode s u  -> ST s (DDNode s u)
-arg3 f (STDdManager m) (DDNode x) (DDNode y) (DDNode z) = liftM DDNode $ unsafeIOToST $ f m x y z
+arg2 f (STDdManager m) (DDNode x) (DDNode y) = fmap DDNode $ unsafeIOToST $ f m x y
 
+arg3 :: (Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> Ptr CDdNode -> IO (Ptr CDdNode)) -> STDdManager s u -> DDNode s u -> DDNode s u -> DDNode s u  -> ST s (DDNode s u)
+arg3 f (STDdManager m) (DDNode x) (DDNode y) (DDNode z) = fmap DDNode $ unsafeIOToST $ f m x y z
+
+bzero, bone :: STDdManager t t1 -> DDNode s u
 bzero (STDdManager m) = DDNode $ unsafePerformIO $ c_cuddReadLogicZero m
 bone  (STDdManager m) = DDNode $ unsafePerformIO $ c_cuddReadOne m
 
+band, bor, bnand, bnor, bxor, bxnor
+  :: STDdManager s u -> DDNode s u -> DDNode s u -> ST s (DDNode s u)
 band    = arg2 c_cuddBddAnd
 bor     = arg2 c_cuddBddOr
 bnand   = arg2 c_cuddBddNand
 bnor    = arg2 c_cuddBddNor
 bxor    = arg2 c_cuddBddXor
 bxnor   = arg2 c_cuddBddXnor
+
+bite :: STDdManager s u -> DDNode s u -> DDNode s u -> DDNode s u -> ST s (DDNode s u)
 bite    = arg3 c_cuddBddIte
+
+bexists, bforall :: STDdManager s u -> DDNode s u -> DDNode s u -> ST s (DDNode s u)
 bexists = arg2 c_cuddBddExistAbstract
 bforall = arg2 c_cuddBddUnivAbstract
 
+andAbstract :: STDdManager s u -> DDNode s u -> DDNode s u -> DDNode s u -> ST s (DDNode s u)
 andAbstract      = arg3 c_cuddBddAndAbstract
+
+xorExistAbstract :: STDdManager s u -> DDNode s u -> DDNode s u -> DDNode s u -> ST s (DDNode s u)
 xorExistAbstract = arg3 c_cuddBddXorExistAbstract
 
+bnot :: DDNode t t1 -> DDNode s u
 bnot (DDNode x) = DDNode $ unsafePerformIO $ c_cuddNotNoRef x
-ithVar (STDdManager m) i = liftM DDNode $ unsafeIOToST $ c_cuddBddIthVar m (fromIntegral i)
+
+ithVar :: Integral a => STDdManager t t1 -> a -> ST s1 (DDNode s u)
+ithVar (STDdManager m) i = fmap DDNode $ unsafeIOToST $ c_cuddBddIthVar m (fromIntegral i)
 
 deref :: STDdManager s u -> DDNode s u -> ST s ()
 deref (STDdManager m) (DDNode x) = unsafeIOToST $ c_cuddIterDerefBdd m x
 
 setVarMap :: STDdManager s u -> [DDNode s u] -> [DDNode s u] -> ST s ()
-setVarMap (STDdManager m) xs ys = unsafeIOToST $ 
-    withArrayLen (map unDDNode xs) $ \xl xp -> 
+setVarMap (STDdManager m) xs ys = unsafeIOToST $
+    withArrayLen (map unDDNode xs) $ \xl xp ->
     withArrayLen (map unDDNode ys) $ \yl yp -> do
     when (xl /= yl) (error "setVarMap: lengths not equal")
     void $ c_cuddSetVarMap m xp yp (fromIntegral xl)
 
 varMap :: STDdManager s u -> DDNode s u -> ST s (DDNode s u)
-varMap (STDdManager m) (DDNode x) = liftM DDNode $ unsafeIOToST $ c_cuddBddVarMap m x
+varMap (STDdManager m) (DDNode x) = fmap DDNode $ unsafeIOToST $ c_cuddBddVarMap m x
 
 leq :: STDdManager s u -> DDNode s u -> DDNode s u -> ST s Bool
-leq (STDdManager m) (DDNode x) (DDNode y) = liftM (==1) $ unsafeIOToST $ c_cuddBddLeq m x y
+leq (STDdManager m) (DDNode x) (DDNode y) = fmap (==1) $ unsafeIOToST $ c_cuddBddLeq m x y
 
 swapVariables :: STDdManager s u -> [DDNode s u] -> [DDNode s u] -> DDNode s u -> ST s (DDNode s u)
-swapVariables (STDdManager m) nodesx nodesy (DDNode x) = unsafeIOToST $ 
-    withArrayLen (map unDDNode nodesx) $ \lx xp -> 
+swapVariables (STDdManager m) nodesx nodesy (DDNode x) = unsafeIOToST $
+    withArrayLen (map unDDNode nodesx) $ \lx xp ->
     withArrayLen (map unDDNode nodesy) $ \ly yp -> do
     when (lx /= ly) $ error "CuddExplicitDeref: shift: lengths not equal"
     res <- c_cuddBddSwapVariables m x xp yp (fromIntegral lx)
@@ -192,9 +204,9 @@ ref :: DDNode s u -> ST s ()
 ref (DDNode x) = unsafeIOToST $ cuddRef x
 
 largestCube :: STDdManager s u -> DDNode s u -> ST s (DDNode s u, Int)
-largestCube (STDdManager m) (DDNode x) = unsafeIOToST $ 
+largestCube (STDdManager m) (DDNode x) = unsafeIOToST $
     alloca $ \lp -> do
-    res <- c_cuddLargestCube m x lp 
+    res <- c_cuddLargestCube m x lp
     l <- peek lp
     return (DDNode res, fromIntegral l)
 
@@ -219,9 +231,9 @@ indicesToCube (STDdManager m) indices = unsafeIOToST $
     return $ DDNode res
 
 computeCube :: STDdManager s u -> [DDNode s u] -> [Bool] -> ST s (DDNode s u)
-computeCube (STDdManager m) nodes phases = unsafeIOToST $ 
-    withArrayLen (map unDDNode nodes) $ \szn ptn -> 
-    withArrayLen (map (fromIntegral . fromBool) phases) $ \szp ptp -> do
+computeCube (STDdManager m) nodes phases = unsafeIOToST $
+    withArrayLen (map unDDNode nodes) $ \szn ptn ->
+    withArrayLen (map (fromInteger . fromBool) phases) $ \szp ptp -> do
     when (szn /= szp) $ error "computeCube: lists are different lengths"
     res <- c_cuddBddComputeCube m ptn ptp (fromIntegral szn)
     return $ DDNode res
@@ -233,81 +245,81 @@ nodesToCube (STDdManager m) nodes = unsafeIOToST $
     return $ DDNode res
 
 readSize :: STDdManager s u -> ST s Int
-readSize (STDdManager m) = liftM fromIntegral $ unsafeIOToST $ c_cuddReadSize m
+readSize (STDdManager m) = fmap fromIntegral $ unsafeIOToST $ c_cuddReadSize m
 
 bddToCubeArray :: STDdManager s u -> DDNode s u -> ST s [SatBit]
-bddToCubeArray ma@(STDdManager m) (DDNode x) = unsafeIOToST $ do
-    size <- liftM fromIntegral $ c_cuddReadSize m
+bddToCubeArray (STDdManager m) (DDNode x) = unsafeIOToST $ do
+    size <- fromIntegral <$> c_cuddReadSize m
     allocaArray size $ \resptr -> do
-        c_cuddBddToCubeArray m x resptr
+        _ <- c_cuddBddToCubeArray m x resptr
         res <- peekArray size resptr
         return $ map (toSatBit . fromIntegral) res
 
 compose :: STDdManager s u -> DDNode s u -> DDNode s u -> Int -> ST s (DDNode s u)
-compose (STDdManager m) (DDNode f) (DDNode g) v = liftM DDNode $ unsafeIOToST $ c_cuddBddCompose m f g (fromIntegral v)
+compose (STDdManager m) (DDNode f) (DDNode g) v = fmap DDNode $ unsafeIOToST $ c_cuddBddCompose m f g (fromIntegral v)
 
 arg3Bool :: (Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> Ptr CDdNode -> IO CInt) -> STDdManager s u -> DDNode s u -> DDNode s u -> DDNode s u  -> ST s Bool
-arg3Bool f (STDdManager m) (DDNode x) (DDNode y) (DDNode z) = liftM (==1) $ unsafeIOToST $ f m x y z
+arg3Bool f (STDdManager m) (DDNode x) (DDNode y) (DDNode z) = fmap (==1) $ unsafeIOToST $ f m x y z
 
 leqUnless, equivDC :: STDdManager s u -> DDNode s u -> DDNode s u -> DDNode s u -> ST s Bool
 leqUnless = arg3Bool c_cuddBddLeqUnless
 equivDC   = arg3Bool c_cuddEquivDC
 
 xeqy :: STDdManager s u -> [DDNode s u] -> [DDNode s u] -> ST s (DDNode s u)
-xeqy (STDdManager m) xs ys = unsafeIOToST $ 
-    withArrayLen (map unDDNode xs) $ \xl xp -> 
+xeqy (STDdManager m) xs ys = unsafeIOToST $
+    withArrayLen (map unDDNode xs) $ \xl xp ->
     withArrayLen (map unDDNode ys) $ \yl yp -> do
     when (xl /= yl) (error "xeqy: lengths not equal")
     res <- c_cuddXeqy m (fromIntegral xl) xp yp
     return $ DDNode res
 
 debugCheck :: STDdManager s u -> ST s Int
-debugCheck (STDdManager m) = liftM fromIntegral $ unsafeIOToST $ c_cuddDebugCheck m
+debugCheck (STDdManager m) = fmap fromIntegral $ unsafeIOToST $ c_cuddDebugCheck m
 
 checkKeys :: STDdManager s u -> ST s Int
-checkKeys (STDdManager m) = liftM fromIntegral $ unsafeIOToST $ c_cuddCheckKeys m
+checkKeys (STDdManager m) = fmap fromIntegral $ unsafeIOToST $ c_cuddCheckKeys m
 
 pickOneMinterm :: STDdManager s u -> DDNode s u -> [DDNode s u] -> ST s (DDNode s u)
-pickOneMinterm (STDdManager m) (DDNode d) vars = unsafeIOToST $ 
+pickOneMinterm (STDdManager m) (DDNode d) vars = unsafeIOToST $
     withArrayLen (map unDDNode vars) $ \vl vp -> do
         res <- c_cuddBddPickOneMinterm m d vp (fromIntegral vl)
         return $ DDNode res
 
 checkZeroRef :: STDdManager s u -> ST s Int
-checkZeroRef (STDdManager m) = liftM fromIntegral $ unsafeIOToST $ c_cuddCheckZeroRef m
+checkZeroRef (STDdManager m) = fmap fromIntegral $ unsafeIOToST $ c_cuddCheckZeroRef m
 
 readInvPerm :: STDdManager s u -> Int -> ST s Int
-readInvPerm (STDdManager m) offs = liftM fromIntegral $ unsafeIOToST $ c_cuddReadInvPerm m (fromIntegral offs)
+readInvPerm (STDdManager m) offs = fmap fromIntegral $ unsafeIOToST $ c_cuddReadInvPerm m (fromIntegral offs)
 
 readPerm :: STDdManager s u -> Int -> ST s Int
-readPerm (STDdManager m) offs = liftM fromIntegral $ unsafeIOToST $ c_cuddReadPerm m (fromIntegral offs)
+readPerm (STDdManager m) offs = fmap fromIntegral $ unsafeIOToST $ c_cuddReadPerm m (fromIntegral offs)
 
 dagSize :: DDNode s u -> ST s Int
-dagSize (DDNode d) = liftM fromIntegral $ unsafeIOToST $ c_cuddDagSize d
+dagSize (DDNode d) = fmap fromIntegral $ unsafeIOToST $ c_cuddDagSize d
 
 readNodeCount :: STDdManager s u -> ST s Integer
-readNodeCount (STDdManager m) = liftM fromIntegral $ unsafeIOToST $ c_cuddReadNodeCount m
+readNodeCount (STDdManager m) = fmap fromIntegral $ unsafeIOToST $ c_cuddReadNodeCount m
 
 readPeakNodeCount :: STDdManager s u -> ST s Integer
-readPeakNodeCount (STDdManager m) = liftM fromIntegral $ unsafeIOToST $ c_cuddReadPeakNodeCount m
+readPeakNodeCount (STDdManager m) = fmap fromIntegral $ unsafeIOToST $ c_cuddReadPeakNodeCount m
 
 regular :: DDNode s u -> DDNode s u
 regular (DDNode x) = DDNode $ unsafePerformIO $ c_wrappedRegular x
 
 readMaxCache :: STDdManager s u -> ST s Int
-readMaxCache (STDdManager m) = liftM fromIntegral $ unsafeIOToST $ c_cuddReadMaxCache m
+readMaxCache (STDdManager m) = fmap fromIntegral $ unsafeIOToST $ c_cuddReadMaxCache m
 
 readMaxCacheHard :: STDdManager s u -> ST s Int
-readMaxCacheHard (STDdManager m) = liftM fromIntegral $ unsafeIOToST $ c_cuddReadMaxCacheHard m
+readMaxCacheHard (STDdManager m) = fmap fromIntegral $ unsafeIOToST $ c_cuddReadMaxCacheHard m
 
 setMaxCacheHard :: STDdManager s u -> Int -> ST s ()
 setMaxCacheHard (STDdManager m) x = unsafeIOToST $ c_cuddSetMaxCacheHard m (fromIntegral x)
 
 readCacheSlots :: STDdManager s u -> ST s Int
-readCacheSlots (STDdManager m) = liftM fromIntegral $ unsafeIOToST $ c_cuddReadCacheSlots m
+readCacheSlots (STDdManager m) = fmap fromIntegral $ unsafeIOToST $ c_cuddReadCacheSlots m
 
 readCacheUsedSlots :: STDdManager s u -> ST s Int
-readCacheUsedSlots (STDdManager m) = liftM fromIntegral $ unsafeIOToST $ c_cuddReadCacheUsedSlots m
+readCacheUsedSlots (STDdManager m) = fmap fromIntegral $ unsafeIOToST $ c_cuddReadCacheUsedSlots m
 
 andLimit :: STDdManager s u -> DDNode s u -> DDNode s u -> Int -> ST s (Maybe (DDNode s u))
 andLimit (STDdManager m) (DDNode x) (DDNode y) lim = unsafeIOToST $ do
@@ -319,20 +331,25 @@ andLimit (STDdManager m) (DDNode x) (DDNode y) lim = unsafeIOToST $ do
         return $ Just $ DDNode res
 
 readTree :: STDdManager s u -> ST s (MtrNode s)
-readTree (STDdManager m) = liftM MtrNode $ unsafeIOToST $ c_cuddReadTree m
+readTree (STDdManager m) = fmap MtrNode $ unsafeIOToST $ c_cuddReadTree m
 
 newVarAtLevel :: STDdManager s u -> Int -> ST s (DDNode s u)
-newVarAtLevel (STDdManager m) level = liftM DDNode $ unsafeIOToST $ c_cuddBddNewVarAtLevel m (fromIntegral level)
+newVarAtLevel (STDdManager m) level = fmap DDNode $ unsafeIOToST $ c_cuddBddNewVarAtLevel m (fromIntegral level)
 
+liCompaction :: STDdManager s u -> DDNode s u -> DDNode s u -> ST s (DDNode s u)
 liCompaction = arg2 c_cuddBddLICompaction
-squeeze      = arg2 c_cuddBddSqueeze
-minimize     = arg2 c_cuddBddMinimize
+
+squeeze :: STDdManager s u -> DDNode s u -> DDNode s u -> ST s (DDNode s u)
+squeeze = arg2 c_cuddBddSqueeze
+
+minimize :: STDdManager s u -> DDNode s u -> DDNode s u -> ST s (DDNode s u)
+minimize = arg2 c_cuddBddMinimize
 
 newVar :: STDdManager s u -> ST s (DDNode s u)
-newVar (STDdManager m) = liftM DDNode $ unsafeIOToST $ c_cuddBddNewVar m
+newVar (STDdManager m) = fmap DDNode $ unsafeIOToST $ c_cuddBddNewVar m
 
 vectorCompose :: STDdManager s u -> DDNode s u -> [DDNode s u] -> ST s (DDNode s u)
-vectorCompose (STDdManager m) (DDNode f) nodes = liftM DDNode $ unsafeIOToST $ withArrayLen (map unDDNode nodes) $ \len ptr -> do
+vectorCompose (STDdManager m) (DDNode f) nodes = fmap DDNode $ unsafeIOToST $ withArrayLen (map unDDNode nodes) $ \len ptr -> do
     sz <- c_cuddReadSize m
     when (fromIntegral sz /= len) (error "vectorCompose: not one entry for each variable in manager")
     c_cuddBddVectorCompose m f ptr
@@ -341,11 +358,10 @@ quit :: STDdManager s u -> ST s ()
 quit (STDdManager m) = unsafeIOToST $ c_cuddQuit m
 
 readIndex :: DDNode s u -> ST s Int
-readIndex (DDNode x) = liftM fromIntegral $ unsafeIOToST $ c_cuddNodeReadIndex x
+readIndex (DDNode x) = fmap fromIntegral $ unsafeIOToST $ c_cuddNodeReadIndex x
 
 printMinterm :: STDdManager s u -> DDNode s u -> ST s ()
 printMinterm (STDdManager m) (DDNode x) = unsafeIOToST $ c_cuddPrintMinterm m x
 
 checkCube :: STDdManager s u -> DDNode s u -> ST s Bool
-checkCube (STDdManager m) (DDNode x) = liftM (==1) $ unsafeIOToST $ c_cuddCheckCube m x
-
+checkCube (STDdManager m) (DDNode x) = fmap (==1) $ unsafeIOToST $ c_cuddCheckCube m x

@@ -2,9 +2,7 @@
 
 module Cudd.MTR where
 
-import System.IO
 import Foreign
-import Foreign.Ptr
 import Foreign.C.Types
 import Control.Monad
 import Control.Monad.ST
@@ -13,13 +11,13 @@ import Control.Monad.ST.Unsafe
 #include <stdio.h>
 #include <mtr.h>
 
-data CMtrNode 
+data CMtrNode
 newtype MtrNode s = MtrNode (Ptr CMtrNode)
 
 foreign import ccall unsafe "mtr.h Mtr_AllocNode"
     c_mtrAllocNode :: IO (Ptr CMtrNode)
 
-mtrAllocNode :: ST s (MtrNode s) 
+mtrAllocNode :: ST s (MtrNode s)
 mtrAllocNode = liftM MtrNode $ unsafeIOToST c_mtrAllocNode
 
 foreign import ccall unsafe "mtr.h Mtr_CreateFirstChild"
@@ -105,4 +103,3 @@ enum MTR_TYPES {
 #endc
 
 {#enum MTR_TYPES as MTRType {underscoreToCase} deriving (Show, Eq) #}
-

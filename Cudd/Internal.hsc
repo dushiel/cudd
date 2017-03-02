@@ -1,8 +1,8 @@
 {-# LANGUAGE ForeignFunctionInterface, EmptyDataDecls, CPP #-}
 module Cudd.Internal (
-    DdManager(..), 
-    STDdManager(..), 
-    DdNode(..), 
+    DdManager(..),
+    STDdManager(..),
+    DdNode(..),
     DDNode(..),
     deref,
     cudd_unique_slots,
@@ -31,5 +31,5 @@ newtype DdNode = DdNode {unDdNode :: ForeignPtr CDdNode} deriving (Ord, Eq, Show
 
 newtype DDNode s u = DDNode {unDDNode :: Ptr CDdNode} deriving (Ord, Eq, Show)
 
+deref :: FunPtr (Ptr CDdManager -> Ptr CDdNode -> IO ())
 deref = c_cuddIterDerefBddPtr
-
