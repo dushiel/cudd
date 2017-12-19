@@ -1,4 +1,1 @@
-resolver: lts-8.0
-packages:
-- '.'
-system-ghc: false
+resolver: lts-10.0
