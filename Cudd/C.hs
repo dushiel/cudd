@@ -8,6 +8,7 @@ module Cudd.C (
     c_cuddReadOneWithRef,
     c_cuddReadLogicZeroWithRef,
     c_cuddBddIthVar,
+    c_cuddZddIthVar,
     c_cuddBddAnd,
     c_cuddBddOr,
     c_cuddBddNand,

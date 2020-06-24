@@ -43,6 +43,13 @@ DdNode *Cudd_bddIthVar_s(DdManager *m, int i){
     return r;
 }
 
+DdNode *Cudd_zddIthVar_s(DdManager *m, int i){
+    DdNode *r = Cudd_zddIthVar(m, i);
+    assert(r);
+    Cudd_Ref(r);
+    return r;
+}
+
 DdNode *Cudd_bddNewVarAtLevel_s(DdManager *m, int i){
     DdNode *r = Cudd_bddNewVarAtLevel(m, i);
     assert(r);
