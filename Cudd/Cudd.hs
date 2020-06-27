@@ -136,7 +136,7 @@ cuddZddIthVar (DdManager d) i = DdNode $ unsafePerformIO $ do
     newForeignPtr_ node
 
 cuddZddReadOne :: DdManager -> DdNode
-cuddReadOne (DdManager d) = DdNode $ unsafePerformIO $ do
+cuddZddReadOne (DdManager d) = DdNode $ unsafePerformIO $ do
     node <- c_cuddReadZddOneWithRef d
     newForeignPtrEnv deref d node
 
