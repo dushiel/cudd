@@ -5,16 +5,11 @@
 
 /*ZDD stuff */
 
-DdNode *Cudd_ReadZddOne_s(DdManager *m){
-    DdNode *r = Cudd_ReadZddOne(m, 1);
-    assert(r);
-    return r;
-}
 
 DdNode *Cudd_ReadZddOne_s(DdManager *m){
-    DdNode *r = Cudd_ReadZddOneWithRef(m, 1);
+    DdNode *r = Cudd_ReadZddOneWithRef(m, int 1);
     assert(r);
-    Cudd_Ref(r)
+    Cudd_Ref(r);
     return r;
 }
 
