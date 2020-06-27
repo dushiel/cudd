@@ -3,12 +3,44 @@
 #include "cudd.h"
 #include "dddmp.h"
 
+/*ZDD stuff */
+
+DdNode *Cudd_ReadZddOne_s(DdManager *m){
+    DdNode *r = Cudd_ReadZddOne(m);
+    assert(r);
+    return r;
+}
+
+
+DdNode *Cudd_zddIthVar_s(DdManager *m, int i){
+    DdNode *r = Cudd_zddIthVar(m, i);
+    assert(r);
+    Cudd_Ref(r);
+    return r;
+}
+
+DdNode *Cudd_zddVarsFromBddVars_s(DdManager *m, int i){
+    DdNode *r = Cudd_zddVarsFromBddVars(m, i);
+    assert(r);
+    Cudd_Ref(r);
+    return r;
+}
+
+DdNode *Cudd_zddVarsFromBddVarsNoRef_s(DdManager *m, int i){
+    DdNode *r = Cudd_zddVarsFromBddVars(m, i);
+    assert(r);
+    return r;
+}
+
+/* non Zdd stuff*/
+
 DdNode *Cudd_bddVarMap_s(DdManager *m, DdNode *x){
     DdNode *r = Cudd_bddVarMap(m, x);
     assert(r);
     Cudd_Ref(r);
     return r;
 }
+
 
 DdNode *Cudd_ReadOne_s(DdManager *m){
     DdNode *r = Cudd_ReadOne(m);
@@ -38,13 +70,6 @@ DdNode *Cudd_ReadLogicZero_withRef_s(DdManager *m){
 
 DdNode *Cudd_bddIthVar_s(DdManager *m, int i){
     DdNode *r = Cudd_bddIthVar(m, i);
-    assert(r);
-    Cudd_Ref(r);
-    return r;
-}
-
-DdNode *Cudd_zddIthVar_s(DdManager *m, int i){
-    DdNode *r = Cudd_zddIthVar(m, i);
     assert(r);
     Cudd_Ref(r);
     return r;

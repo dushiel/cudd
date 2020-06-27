@@ -8,6 +8,9 @@ module Cudd.Cudd (
     cuddReadOne,
     cuddReadLogicZero,
     cuddBddIthVar,
+    cuddZddIthVar, --ZDD stuff
+    cuddZddVarsFromBddVars,
+    cuddZddReadOne,
     cuddBddAnd,
     cuddBddOr,
     cuddBddNand,
@@ -124,6 +127,11 @@ cuddReadLogicZero (DdManager d) = DdNode $ unsafePerformIO $ do
 cuddBddIthVar :: DdManager -> Int -> DdNode
 cuddBddIthVar (DdManager d) i = DdNode $ unsafePerformIO $ do
     node <- c_cuddBddIthVar d (fromIntegral i)
+    newForeignPtr_ node
+
+cuddZddIthVar :: DdManager -> Int -> DdNode
+cuddZddIthVar (DdManager d) i = DdNode $ unsafePerformIO $ do
+    node <- c_cuddZddIthVar d (fromIntegral i)
     newForeignPtr_ node
 
 cuddArg1 :: (Ptr CDdManager -> Ptr CDdNode -> IO (Ptr CDdNode)) -> DdManager -> DdNode -> DdNode
