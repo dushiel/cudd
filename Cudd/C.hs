@@ -10,7 +10,7 @@ module Cudd.C (
     c_cuddBddIthVar,
     c_cuddZddReadOne, --ZDD stuff
     c_cuddZddIthVar,
-    c_zddVarsFromBddVars,
+    c_cuddZddVarsFromBddVars,
     c_cuddBddAnd,
     c_cuddBddOr,
     c_cuddBddNand,
