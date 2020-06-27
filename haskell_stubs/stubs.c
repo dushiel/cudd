@@ -6,8 +6,8 @@
 /*ZDD stuff */
 
 
-DdNode *Cudd_ReadZddOne_s(DdManager *m){
-    DdNode *r = Cudd_ReadZddOneWithRef(m, int 1);
+DdNode *Cudd_ZddReadOne_withRef_s(DdManager *m){
+    DdNode *r = Cudd_ReadZddOne(m, int 1);
     assert(r);
     Cudd_Ref(r);
     return r;

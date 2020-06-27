@@ -104,7 +104,7 @@ data CDdNode
 foreign import ccall safe "cudd.h Cudd_ZddReadOne_s"
     c_cuddZddReadOne :: Ptr CDdManager -> IO (Ptr CDdNode)
 
-foreign import ccall safe "cudd.h Cudd_ZddReadOne_WithRef_s"
+foreign import ccall safe "cudd.h Cudd_ZddReadOne_withRef_s"
     c_cuddZddReadOneWithRef :: Ptr CDdManager -> IO (Ptr CDdNode)
 
 foreign import ccall safe "cudd.h Cudd_zddIthVar_s"
