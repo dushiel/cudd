@@ -11,6 +11,13 @@ DdNode *Cudd_ReadZddOne_s(DdManager *m){
     return r;
 }
 
+DdNode *Cudd_ReadZddOne_s(DdManager *m){
+    DdNode *r = Cudd_ReadZddOneWithRef(m);
+    assert(r);
+    Cudd_Ref(r)
+    return r;
+}
+
 
 DdNode *Cudd_zddIthVar_s(DdManager *m, int i){
     DdNode *r = Cudd_zddIthVar(m, i);

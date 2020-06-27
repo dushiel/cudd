@@ -9,6 +9,7 @@ module Cudd.C (
     c_cuddReadLogicZeroWithRef,
     c_cuddBddIthVar,
     c_cuddZddReadOne, --ZDD stuff
+    c_cuddZddReadOneWithRef,
     c_cuddZddIthVar,
     c_cuddZddVarsFromBddVars,
     c_cuddBddAnd,
@@ -102,6 +103,9 @@ data CDdNode
 
 foreign import ccall safe "cudd.h Cudd_ZddReadOne_s"
     c_cuddZddReadOne :: Ptr CDdManager -> IO (Ptr CDdNode)
+
+foreign import ccall safe "cudd.h Cudd_ZddReadOne_WithRef_s"
+    c_cuddZddReadOneWithRef :: Ptr CDdManager -> IO (Ptr CDdNode)
 
 foreign import ccall safe "cudd.h Cudd_zddIthVar_s"
     c_cuddZddIthVar :: Ptr CDdManager -> CInt -> IO (Ptr CDdNode)
