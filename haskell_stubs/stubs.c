@@ -34,6 +34,7 @@ DdNode *Cudd_zddVarsFromBddVarsNoRef_s(DdManager *m, int i){
     return r;
 }
 
+    
 /* non Zdd stuff*/
 
 DdNode *Cudd_bddVarMap_s(DdManager *m, DdNode *x){
