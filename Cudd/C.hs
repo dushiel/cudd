@@ -12,7 +12,7 @@ module Cudd.C (
     c_cuddZddIthVar,
     c_cuddZddVarsFromBddVars,
     c_cuddPrintDdInfo,
-    c_cuddDebugCheck
+    c_cuddDebugCheck,
     c_cuddBddAnd,
     c_cuddBddOr,
     c_cuddBddNand,
