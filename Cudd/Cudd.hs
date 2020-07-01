@@ -145,8 +145,8 @@ cuddZddVarsFromBddVars (DdManager d) i = DdNode $ unsafePerformIO $ do
     node <- c_cuddZddVarsFromBddVars d (fromIntegral i)
     newForeignPtr_ node
 
-cuddPrintDdInfo :: DdManager -> DdNode -> IO ()
-cuddPrintDdInfo (DdManager d) (DdNode n) = IO() $ unsafePerformIO $ do 
+cuddPrintDdInfo :: DdManager -> DdNode -> ()
+cuddPrintDdInfo (DdManager d) (DdNode n) = () $ unsafePerformIO $ do 
     c_cuddPrintDdInfo d n 0 3 
 
 --other stuff
