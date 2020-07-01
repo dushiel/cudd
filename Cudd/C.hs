@@ -8,8 +8,7 @@ module Cudd.C (
     c_cuddReadOneWithRef,
     c_cuddReadLogicZeroWithRef,
     c_cuddBddIthVar,
-    c_cuddZddReadOne, --ZDD stuff
-    c_cuddZddReadOneWithRef,
+    c_cuddZddReadOneWithRef, --ZDD stuff
     c_cuddZddIthVar,
     c_cuddZddVarsFromBddVars,
     c_cuddPrintDdInfo,
@@ -48,7 +47,7 @@ module Cudd.C (
     c_cuddBddLeqUnless,
     c_cuddEquivDC,
     c_cuddXeqy,
-    c_cuddPrintInfo,
+    c_cuddPrintDdInfo,
     c_cuddCheckKeys,
     c_cuddBddPickOneMinterm,
     c_cuddCheckZeroRef,
