@@ -12,6 +12,7 @@ module Cudd.C (
     c_cuddZddIthVar,
     c_cuddZddVarsFromBddVars,
     c_cuddPrintDdInfo,
+    c_cuddDebugCheck
     c_cuddBddAnd,
     c_cuddBddOr,
     c_cuddBddNand,
@@ -46,7 +47,6 @@ module Cudd.C (
     c_cuddBddLeqUnless,
     c_cuddEquivDC,
     c_cuddXeqy,
-    c_cuddPrintDdInfo,
     c_cuddCheckKeys,
     c_cuddBddPickOneMinterm,
     c_cuddCheckZeroRef,
