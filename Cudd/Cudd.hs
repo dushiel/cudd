@@ -146,7 +146,7 @@ cuddZddVarsFromBddVars (DdManager d) i = DdNode $ unsafePerformIO $ do
     newForeignPtr_ node
 
 cuddPrintDdInfo :: DdManager -> DdNode -> ()
-cuddPrintDdInfo (DdManager d) (DdNode n) = () $ unsafePerformIO $ 
+cuddPrintDdInfo (DdManager d) (DdNode n) = unsafePerformIO $ 
     withForeignPtr n $ \np -> do 
     c_cuddPrintDdInfo d np 0 3 
 
