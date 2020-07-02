@@ -21,11 +21,8 @@ DdNode *Cudd_zddIthVar_s(DdManager *m, int i){
     return r;
 }
 
-DdNode *Cudd_zddVarsFromBddVars_s(DdManager *m, int i){
-    DdNode *r = Cudd_zddVarsFromBddVars(m, i);
-    assert(r);
-    Cudd_Ref(r);
-    return r;
+void Cudd_zddVarsFromBddVars_s(DdManager *m, int i){
+    Cudd_zddVarsFromBddVars(m, i);
 }
 
 DdNode *Cudd_zddVarsFromBddVarsNoRef_s(DdManager *m, int i){
