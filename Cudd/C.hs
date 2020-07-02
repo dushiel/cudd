@@ -108,7 +108,7 @@ foreign import ccall safe "cudd.h Cudd_zddIthVar_s"
     c_cuddZddIthVar :: Ptr CDdManager -> CInt -> IO (Ptr CDdNode)
 
 foreign import ccall safe "cudd.h Cudd_zddVarsFromBddVars_s"
-    c_cuddZddVarsFromBddVars :: Ptr CDdManager -> CInt -> IO ()
+    c_cuddZddVarsFromBddVars :: Ptr CDdManager -> CInt -> ()
 
 foreign import ccall "Cudd_PrintDebug"
     c_cuddPrintDdInfo :: Ptr CDdManager -> Ptr CDdNode -> CInt -> CInt -> IO ()
