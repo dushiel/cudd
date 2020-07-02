@@ -141,7 +141,7 @@ cuddZddReadOne (DdManager d) = DdNode $ unsafePerformIO $ do
     newForeignPtrEnv deref d node
 
 cuddZddVarsFromBddVars :: DdManager -> Int -> IO()
-cuddZddVarsFromBddVars (DdManager d) i = unsafePerformIO $ do
+cuddZddVarsFromBddVars (DdManager d) i = IO $ unsafePerformIO $ do
     c_cuddZddVarsFromBddVars d (fromIntegral i)
 
 cuddPrintDdInfo :: DdManager -> DdNode -> ()
