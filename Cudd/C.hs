@@ -11,8 +11,9 @@ module Cudd.C (
     c_cuddZddReadOneWithRef, --ZDD stuff
     c_cuddZddIthVar,
     c_cuddZddVarsFromBddVars,
+    c_cuddZddPortFromBdd,
     c_cuddPrintDdInfo,
-    c_cuddDebugCheck,
+    c_cuddDebugCheck,   --other stuff
     c_cuddBddAnd,
     c_cuddBddOr,
     c_cuddBddNand,
@@ -112,6 +113,10 @@ foreign import ccall safe "cudd.h Cudd_zddVarsFromBddVars_s"
 
 foreign import ccall "Cudd_PrintDebug"
     c_cuddPrintDdInfo :: Ptr CDdManager -> Ptr CDdNode -> CInt -> CInt -> IO ()
+
+foreign import ccall safe "cudd.h Cudd_zddPortFromBdd_s"
+    c_cuddZddPortFromBdd :: Ptr CDdManager -> Ptr CDdNode -> IO (Ptr CDdNode)
+
 
 -- Non zdd stuff
 
