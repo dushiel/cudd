@@ -29,7 +29,7 @@ void Cudd_zddVarsFromBddVarsNoRef_s(DdManager *m, int i){
     Cudd_zddVarsFromBddVars(m, i);
 }
 
-void Cudd_zddPortFromBdd(DdManager *m, DdNode *n){
+DdNode *Cudd_zddPortFromBdd(DdManager *m, DdNode *n){
     Cudd_zddPortFromBdd(m, n);
 }
 
