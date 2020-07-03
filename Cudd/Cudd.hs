@@ -11,6 +11,7 @@ module Cudd.Cudd (
     cuddZddIthVar, --ZDD stuff
     cuddZddVarsFromBddVars,
     cuddZddReadOne,
+    cuddPrintDdInfo,
     cuddBddAnd,
     cuddBddOr,
     cuddBddNand,
