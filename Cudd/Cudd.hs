@@ -142,7 +142,7 @@ cuddZddReadOne (DdManager d) = DdNode $ unsafePerformIO $ do
 
 cuddZddPortFromBdd :: DdManager -> DdNode -> DdNode
 cuddZddPortFromBdd (DdManager d) (DdNode n) = DdNode $ unsafePerformIO $ withForeignPtr n $ \np -> do
-    node <- c_cuddZddPortFromBdd d n
+    node <- c_cuddZddPortFromBdd d np
     newForeignPtrEnv deref d node
 
 cuddZddVarsFromBddVars :: DdManager -> Int -> IO()
