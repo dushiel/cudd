@@ -10,6 +10,7 @@ module Cudd.Cudd (
     cuddBddIthVar,
     cuddZddIthVar, --ZDD stuff
     cuddZddVarsFromBddVars,
+    cuddZddPortFromBdd,
     cuddZddReadOne,
     cuddPrintDdInfo,
     cuddBddAnd,
