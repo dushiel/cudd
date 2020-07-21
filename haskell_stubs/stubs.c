@@ -6,13 +6,41 @@
 /*ZDD stuff */
 
 
-DdNode *Cudd_ZddReadOne_withRef_s(DdManager *m){
+DdNode *Cudd_zddReadOne_withRef_s(DdManager *m){
     DdNode *r = Cudd_ReadZddOne(m, (int) 1);
     assert(r);
     Cudd_Ref(r);
     return r;
 }
 
+DdNode * Cudd_zddDiff_s(DdManager *m, DdNode *x, DdNode *y ){
+    DdNode *r = Cudd_zddDiff(m, x, y);
+    DdNode *c = Cudd_ReadZero(m);
+    if (r != c) {
+        assert(r);
+        Cudd_Ref(r);
+        return r;
+    }else {
+        r = Cudd_ReadLogicZero(m);
+        assert(r);
+        Cudd_Ref(r);
+        return r;
+    }
+}
+
+DdNode *Cudd_zddIte_withRef_s (DdManager *m, DdNode *x, DdNode *y, DdNode *z){
+    DdNode *r = Cudd_zddIte(m, x, y, z);
+    assert(r);
+    Cudd_Ref(r);
+    return r;
+}
+
+DdNode *Cudd_zddIntersect_s (DdManager *m, DdNode *x, DdNode *y){
+    DdNode *r = Cudd_zddIntersect(m, x, y);
+    assert(r);
+    Cudd_Ref(r);
+    return r;
+}
 
 DdNode *Cudd_zddIthVar_s(DdManager *m, int i){
     DdNode *r = Cudd_zddIthVar(m, i);
@@ -25,9 +53,26 @@ void Cudd_zddVarsFromBddVars_s(DdManager *m, int i){
     Cudd_zddVarsFromBddVars(m, i);
 }
 
-void Cudd_zddVarsFromBddVarsNoRef_s(DdManager *m, int i){
-    Cudd_zddVarsFromBddVars(m, i);
+void Cudd_dumpDot(DdManager *m, DdNode *n, char* filename){
+    FILE *outfile; // output file pointer for .dot file
+    outfile = fopen(filename,"w");
+    DdNode **ddnodearray = (DdNode**)malloc(sizeof(DdNode*)); // initialize the function array
+    ddnodearray[0] = n;
+    Cudd_DumpDot(m, 1, ddnodearray, NULL, NULL, outfile); // dump the function to .dot file
+    free(ddnodearray);
+    fclose (outfile); // close the file */
 }
+
+void Cudd_dumpDotZ(DdManager *m, DdNode *n, char* filename){
+    FILE *outfile; // output file pointer for .dot file
+    outfile = fopen(filename,"w");
+    DdNode **ddnodearray = (DdNode**)malloc(sizeof(DdNode*)); // initialize the function array
+    ddnodearray[0] = n;
+    Cudd_DumpDot(m, 1, ddnodearray, NULL, NULL, outfile); // dump the function to .dot file
+    free(ddnodearray);
+    fclose (outfile); // close the file */
+}
+
 
 DdNode *Cudd_zddPortFromBdd_s(DdManager *m, DdNode *n){
     Cudd_zddPortFromBdd(m, n);

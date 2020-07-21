@@ -3,17 +3,22 @@
 module Cudd.C (
     CDdManager,
     CDdNode,
+    c_cuddZddReadOneWithRef, --ZDD stuff
+    c_cuddZddIthVar,
+    c_cuddZddITE,
+    c_cuddZddIntersect,
+    c_cuddZddVarsFromBddVars,
+    c_cuddZddPortFromBdd,
+    c_cuddPrintDdInfo,
+    c_cuddZddDiff,
+    c_cuddZddToDot,
+    c_cuddBddToDot,
+    c_cuddDebugCheck,   --other stuff
     c_cuddReadOne,
     c_cuddReadLogicZero,
     c_cuddReadOneWithRef,
     c_cuddReadLogicZeroWithRef,
     c_cuddBddIthVar,
-    c_cuddZddReadOneWithRef, --ZDD stuff
-    c_cuddZddIthVar,
-    c_cuddZddVarsFromBddVars,
-    c_cuddZddPortFromBdd,
-    c_cuddPrintDdInfo,
-    c_cuddDebugCheck,   --other stuff
     c_cuddBddAnd,
     c_cuddBddOr,
     c_cuddBddNand,
@@ -94,6 +99,7 @@ module Cudd.C (
 
 import Foreign
 import Foreign.C.Types
+import Foreign.C.String
 
 import Cudd.MTR
 
@@ -102,7 +108,7 @@ data CDdNode
 
 --ZDD stuff
 
-foreign import ccall safe "cudd.h Cudd_ZddReadOne_withRef_s"
+foreign import ccall safe "cudd.h Cudd_zddReadOne_withRef_s"
     c_cuddZddReadOneWithRef :: Ptr CDdManager -> IO (Ptr CDdNode)
 
 foreign import ccall safe "cudd.h Cudd_zddIthVar_s"
@@ -117,6 +123,20 @@ foreign import ccall "Cudd_PrintDebug"
 foreign import ccall safe "cudd.h Cudd_zddPortFromBdd_s"
     c_cuddZddPortFromBdd :: Ptr CDdManager -> Ptr CDdNode -> IO (Ptr CDdNode)
 
+foreign import ccall safe "cudd.h Cudd_zddIte_withRef_s"
+    c_cuddZddITE :: Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> Ptr CDdNode -> IO (Ptr CDdNode)
+
+foreign import ccall safe "cudd.h Cudd_zddIntersect_s"
+    c_cuddZddIntersect :: Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> IO (Ptr CDdNode)
+
+foreign import ccall safe "cudd.h Cudd_zddDiff_s"
+    c_cuddZddDiff :: Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> IO (Ptr CDdNode)
+
+foreign import ccall safe "cudd.h Cudd_dumpDotZ"
+    c_cuddZddToDot :: Ptr CDdManager -> Ptr CDdNode -> CString -> IO ()
+
+foreign import ccall safe "cudd.h Cudd_dumpDot"
+    c_cuddBddToDot :: Ptr CDdManager -> Ptr CDdNode -> CString -> IO ()
 
 -- Non zdd stuff
 

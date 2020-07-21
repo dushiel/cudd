@@ -9,10 +9,15 @@ module Cudd.Cudd (
     cuddReadLogicZero,
     cuddBddIthVar,
     cuddZddIthVar, --ZDD stuff
+    cuddZddITE,
     cuddZddVarsFromBddVars,
     cuddZddPortFromBdd,
     cuddZddReadOne,
     cuddPrintDdInfo,
+    cuddZddIntersect,
+    cuddZddDiff,
+    cuddZddToDot,
+    cuddBddToDot,
     cuddBddAnd,
     cuddBddOr,
     cuddBddNand,
@@ -20,7 +25,6 @@ module Cudd.Cudd (
     cuddBddXor,
     cuddBddXnor,
     cuddNot,
-    cuddDumpDot,
     cudd_cache_slots,
     cudd_unique_slots,
     cuddEval,
@@ -144,6 +148,7 @@ cuddZddReadOne (DdManager d) = DdNode $ unsafePerformIO $ do
 
 cuddZddPortFromBdd :: DdManager -> DdNode -> DdNode
 cuddZddPortFromBdd (DdManager d) (DdNode n) = DdNode $ unsafePerformIO $ withForeignPtr n $ \np -> do
+    cuddZddVarsFromBddVars (DdManager d) 1
     node <- c_cuddZddPortFromBdd d np
     newForeignPtrEnv deref d node
 
@@ -155,6 +160,27 @@ cuddPrintDdInfo :: DdManager -> DdNode -> IO()
 cuddPrintDdInfo (DdManager d) (DdNode n) = 
     withForeignPtr n $ \np -> do 
     c_cuddPrintDdInfo d np 0 3 
+
+cuddZddITE :: DdManager -> DdNode -> DdNode -> DdNode -> DdNode
+cuddZddITE = cuddArg3 c_cuddZddITE
+
+cuddZddIntersect :: DdManager -> DdNode -> DdNode -> DdNode
+cuddZddIntersect = cuddArg2 c_cuddZddIntersect
+
+cuddZddDiff :: DdManager -> DdNode -> DdNode -> DdNode
+cuddZddDiff = cuddArg2 c_cuddZddDiff
+
+cuddZddToDot :: DdManager -> DdNode -> String -> IO()
+cuddZddToDot (DdManager m) (DdNode n) file = 
+    withForeignPtr n $ \np -> do 
+        c_cuddZddToDot m np f where
+            f = unsafePerformIO $ newCString file
+
+cuddBddToDot :: DdManager -> DdNode -> String -> IO()
+cuddBddToDot (DdManager m) (DdNode n) file = 
+    withForeignPtr n $ \np -> do 
+        c_cuddBddToDot m np f where
+            f = unsafePerformIO $ newCString file
 
 --other stuff
 
