@@ -12,6 +12,8 @@ module Cudd.C (
     c_cuddPrintDdInfo,
     c_cuddZddDiff,
     c_cuddZddToDot,
+    c_cuddZddSub0,
+    c_cuddZddSub1,
     c_cuddBddToDot,
     c_cuddDebugCheck,   --other stuff
     c_cuddReadOne,
@@ -137,6 +139,12 @@ foreign import ccall safe "cudd.h Cudd_dumpDotZ"
 
 foreign import ccall safe "cudd.h Cudd_dumpDot"
     c_cuddBddToDot :: Ptr CDdManager -> Ptr CDdNode -> CString -> IO ()
+
+foreign import ccall safe "cudd.h Cudd_zddSubset0_s"
+    c_cuddZddSub0 :: Ptr CDdManager -> Ptr CDdNode -> CInt -> IO (Ptr CDdNode)
+
+foreign import ccall safe "cudd.h Cudd_zddSubset1_s"
+    c_cuddZddSub1 :: Ptr CDdManager -> Ptr CDdNode -> CInt -> IO (Ptr CDdNode)
 
 -- Non zdd stuff
 

@@ -16,8 +16,10 @@ module Cudd.Cudd (
     cuddPrintDdInfo,
     cuddZddIntersect,
     cuddZddDiff,
+    cuddZddSub0,
+    cuddZddSub1,
     cuddZddToDot,
-    cuddBddToDot,
+    cuddBddToDot, --other stuff
     cuddBddAnd,
     cuddBddOr,
     cuddBddNand,
@@ -175,6 +177,23 @@ cuddZddToDot (DdManager m) (DdNode n) file =
     withForeignPtr n $ \np -> do 
         c_cuddZddToDot m np f where
             f = unsafePerformIO $ newCString file
+
+cuddZddSub0 :: DdManager -> DdNode -> Int -> DdNode
+cuddZddSub0 (DdManager m) (DdNode n) i =
+    DdNode $ unsafePerformIO $ withForeignPtr n $ \np -> do 
+        node <- c_cuddZddSub0 m np (fromIntegral i)
+        newForeignPtrEnv deref m node
+
+cuddZddSub1 :: DdManager -> DdNode -> Int -> DdNode
+cuddZddSub1 (DdManager m) (DdNode n) i =
+    DdNode $ unsafePerformIO $ withForeignPtr n $ \np -> do 
+        node <- c_cuddZddSub1 m np (fromIntegral i)
+        newForeignPtrEnv deref m node
+
+--bool = 0, returns a zdd where the variable is false
+{-cuddZddRestrict :: DdManager -> DdNode -> Int -> Bool -> IO(DdNode) 
+cuddZddRestrict m n i b = 
+    if b then cuddZddSub1 m n i else cuddZddSub0 m n i-}
 
 cuddBddToDot :: DdManager -> DdNode -> String -> IO()
 cuddBddToDot (DdManager m) (DdNode n) file = 

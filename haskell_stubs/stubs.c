@@ -5,6 +5,18 @@
 
 /*ZDD stuff */
 
+DdNode *Cudd_zddSubset1_s (DdManager *m, DdNode *n, int var){
+    DdNode *r = Cudd_zddSubset1(m, n, var);
+    assert(r);
+    Cudd_Ref(r);
+    return r;
+}
+DdNode *Cudd_zddSubset0_s (DdManager *m, DdNode *n, int var){
+    DdNode *r = Cudd_zddSubset0(m, n, var);
+    assert(r);
+    Cudd_Ref(r);
+    return r;
+}
 
 DdNode *Cudd_zddReadOne_withRef_s(DdManager *m){
     DdNode *r = Cudd_ReadZddOne(m, (int) 1);
