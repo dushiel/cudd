@@ -6,41 +6,79 @@
 /*ZDD stuff */
 
 DdNode *Cudd_zddSubset1_s (DdManager *m, DdNode *n, int var){
+    printf("sub1-");
     DdNode *r = Cudd_zddSubset1(m, n, var);
     assert(r);
     Cudd_Ref(r);
     return r;
 }
 DdNode *Cudd_zddSubset0_s (DdManager *m, DdNode *n, int var){
+    printf("sub0-");
     DdNode *r = Cudd_zddSubset0(m, n, var);
+    assert(r);
+    Cudd_Ref(r);
+    return r;
+}
+DdNode *Cudd_zddChange_s (DdManager *m, DdNode *n, int var){
+    printf("change-");
+    DdNode *r = Cudd_zddChange(m, n, var);
+    assert(r);
+    Cudd_Ref(r);
+    return r;
+}
+DdNode *Cudd_zddDivide_s (DdManager *m, DdNode *x, DdNode *y){
+    printf("divide-");
+    DdNode *r = Cudd_zddDivide(m, x, y);
+    assert(r);
+    Cudd_Ref(r);
+    return r;
+}
+DdNode *Cudd_zddUnion_s (DdManager *m, DdNode *x, DdNode *y){
+    printf("union-");
+    DdNode *r = Cudd_zddUnion(m, x, y);
     assert(r);
     Cudd_Ref(r);
     return r;
 }
 
 DdNode *Cudd_zddReadOne_withRef_s(DdManager *m){
-    DdNode *r = Cudd_ReadZddOne(m, (int) 1);
+    printf("1");
+    DdNode *r = Cudd_ReadZddOne(m, (int) 0);
+    assert(r);
+    Cudd_Ref(r);
+    return r;
+}
+
+DdNode *Cudd_zddReadZero_s(DdManager *m){
+    printf("0");
+    DdNode *r = Cudd_ReadZero(m );
     assert(r);
     Cudd_Ref(r);
     return r;
 }
 
 DdNode * Cudd_zddDiff_s(DdManager *m, DdNode *x, DdNode *y ){
+    printf("diff-");
     DdNode *r = Cudd_zddDiff(m, x, y);
-    DdNode *c = Cudd_ReadZero(m);
-    if (r != c) {
-        assert(r);
-        Cudd_Ref(r);
-        return r;
-    }else {
-        r = Cudd_ReadLogicZero(m);
-        assert(r);
-        Cudd_Ref(r);
-        return r;
-    }
+    assert(r);
+    Cudd_Ref(r);
+    return r;
+    //DdNode *c = Cudd_ReadZero(m);
+
+    // if (r != c) {
+    //     assert(r);
+    //     Cudd_Ref(r);
+    //     return r;
+    // }else {
+    //     r = Cudd_ReadLogicZero(m);
+    //     assert(r);
+    //     Cudd_Ref(r);
+    //     return r;
+    // }
 }
 
 DdNode *Cudd_zddIte_withRef_s (DdManager *m, DdNode *x, DdNode *y, DdNode *z){
+    printf("ITE-");
     DdNode *r = Cudd_zddIte(m, x, y, z);
     assert(r);
     Cudd_Ref(r);
@@ -48,6 +86,7 @@ DdNode *Cudd_zddIte_withRef_s (DdManager *m, DdNode *x, DdNode *y, DdNode *z){
 }
 
 DdNode *Cudd_zddIntersect_s (DdManager *m, DdNode *x, DdNode *y){
+    printf("intersect-");
     DdNode *r = Cudd_zddIntersect(m, x, y);
     assert(r);
     Cudd_Ref(r);
@@ -87,7 +126,7 @@ void Cudd_dumpDotZ(DdManager *m, DdNode *n, char* filename){
 
 
 DdNode *Cudd_zddPortFromBdd_s(DdManager *m, DdNode *n){
-    Cudd_zddPortFromBdd(m, n);
+    return Cudd_zddPortFromBdd(m, n);
 }
 
     

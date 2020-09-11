@@ -15,10 +15,15 @@ module Cudd.Cudd (
     cuddZddReadOne,
     cuddPrintDdInfo,
     cuddZddIntersect,
+    cuddZddUnion,
     cuddZddDiff,
     cuddZddSub0,
     cuddZddSub1,
+    cuddZddChange,
+    cuddZddDivide,
     cuddZddToDot,
+    cuddZddReadZero,
+    cuddZddVarFromBdd,
     cuddBddToDot, --other stuff
     cuddBddAnd,
     cuddBddOr,
@@ -148,9 +153,18 @@ cuddZddReadOne (DdManager d) = DdNode $ unsafePerformIO $ do
     node <- c_cuddZddReadOneWithRef d
     newForeignPtrEnv deref d node
 
+cuddZddReadZero :: DdManager -> DdNode
+cuddZddReadZero (DdManager d) = DdNode $ unsafePerformIO $ do
+    node <- c_cuddZddReadZero d
+    newForeignPtrEnv deref d node
+
+cuddZddVarFromBdd :: DdManager -> IO()
+cuddZddVarFromBdd (DdManager d) = do
+    c_cuddZddVarsFromBddVars d (fromIntegral 1)
+    return ()
+
 cuddZddPortFromBdd :: DdManager -> DdNode -> DdNode
 cuddZddPortFromBdd (DdManager d) (DdNode n) = DdNode $ unsafePerformIO $ withForeignPtr n $ \np -> do
-    cuddZddVarsFromBddVars (DdManager d) 1
     node <- c_cuddZddPortFromBdd d np
     newForeignPtrEnv deref d node
 
@@ -168,6 +182,12 @@ cuddZddITE = cuddArg3 c_cuddZddITE
 
 cuddZddIntersect :: DdManager -> DdNode -> DdNode -> DdNode
 cuddZddIntersect = cuddArg2 c_cuddZddIntersect
+
+cuddZddUnion :: DdManager -> DdNode -> DdNode -> DdNode
+cuddZddUnion = cuddArg2 c_cuddZddUnion
+
+cuddZddDivide :: DdManager -> DdNode -> DdNode -> DdNode
+cuddZddDivide = cuddArg2 c_cuddZddDivide
 
 cuddZddDiff :: DdManager -> DdNode -> DdNode -> DdNode
 cuddZddDiff = cuddArg2 c_cuddZddDiff
@@ -188,6 +208,12 @@ cuddZddSub1 :: DdManager -> DdNode -> Int -> DdNode
 cuddZddSub1 (DdManager m) (DdNode n) i =
     DdNode $ unsafePerformIO $ withForeignPtr n $ \np -> do 
         node <- c_cuddZddSub1 m np (fromIntegral i)
+        newForeignPtrEnv deref m node
+
+cuddZddChange :: DdManager -> DdNode -> Int -> DdNode
+cuddZddChange (DdManager m) (DdNode n) i =
+    DdNode $ unsafePerformIO $ withForeignPtr n $ \np -> do 
+        node <- c_cuddZddChange m np (fromIntegral i)
         newForeignPtrEnv deref m node
 
 --bool = 0, returns a zdd where the variable is false

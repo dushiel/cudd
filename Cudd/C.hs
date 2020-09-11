@@ -7,6 +7,7 @@ module Cudd.C (
     c_cuddZddIthVar,
     c_cuddZddITE,
     c_cuddZddIntersect,
+    c_cuddZddUnion,
     c_cuddZddVarsFromBddVars,
     c_cuddZddPortFromBdd,
     c_cuddPrintDdInfo,
@@ -14,6 +15,9 @@ module Cudd.C (
     c_cuddZddToDot,
     c_cuddZddSub0,
     c_cuddZddSub1,
+    c_cuddZddDivide,
+    c_cuddZddChange,
+    c_cuddZddReadZero,
     c_cuddBddToDot,
     c_cuddDebugCheck,   --other stuff
     c_cuddReadOne,
@@ -145,6 +149,19 @@ foreign import ccall safe "cudd.h Cudd_zddSubset0_s"
 
 foreign import ccall safe "cudd.h Cudd_zddSubset1_s"
     c_cuddZddSub1 :: Ptr CDdManager -> Ptr CDdNode -> CInt -> IO (Ptr CDdNode)
+
+foreign import ccall safe "cudd.h Cudd_zddChange_s"
+    c_cuddZddChange :: Ptr CDdManager -> Ptr CDdNode -> CInt -> IO (Ptr CDdNode)
+
+foreign import ccall safe "cudd.h Cudd_zddUnion_s"
+    c_cuddZddUnion :: Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> IO (Ptr CDdNode)
+
+foreign import ccall safe "cudd.h Cudd_zddDivide_s"
+    c_cuddZddDivide :: Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> IO (Ptr CDdNode)
+
+foreign import ccall safe "cudd.h Cudd_zddReadZero_s"
+    c_cuddZddReadZero :: Ptr CDdManager -> IO (Ptr CDdNode)
+
 
 -- Non zdd stuff
 
