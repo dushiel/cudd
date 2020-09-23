@@ -97,7 +97,7 @@ void Cudd_dumpDotZ(DdManager *m, DdNode *n, char* filename){
     outfile = fopen(filename,"w");
     DdNode **ddnodearray = (DdNode**)malloc(sizeof(DdNode*)); // initialize the function array
     ddnodearray[0] = n;
-    Cudd_DumpDot(m, 1, ddnodearray, NULL, NULL, outfile); // dump the function to .dot file
+    Cudd_zddDumpDot(m, 1, ddnodearray, NULL, NULL, outfile); // dump the function to .dot file
     free(ddnodearray);
     fclose (outfile); // close the file */
 }
