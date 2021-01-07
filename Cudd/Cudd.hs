@@ -20,7 +20,7 @@ module Cudd.Cudd (
     cuddZddSub0,
     cuddZddSub1,
     cuddZddChange,
-    cuddZddDivide,
+    cuddZddProduct,
     cuddZddToDot,
     cuddZddReadZero,
     cuddZddVarFromBdd,
@@ -186,8 +186,8 @@ cuddZddIntersect = cuddArg2 c_cuddZddIntersect
 cuddZddUnion :: DdManager -> DdNode -> DdNode -> DdNode
 cuddZddUnion = cuddArg2 c_cuddZddUnion
 
-cuddZddDivide :: DdManager -> DdNode -> DdNode -> DdNode
-cuddZddDivide = cuddArg2 c_cuddZddDivide
+cuddZddProduct :: DdManager -> DdNode -> DdNode -> DdNode
+cuddZddProduct = cuddArg2 c_cuddZddProduct
 
 cuddZddDiff :: DdManager -> DdNode -> DdNode -> DdNode
 cuddZddDiff = cuddArg2 c_cuddZddDiff

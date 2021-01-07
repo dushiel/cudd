@@ -1,5 +1,5 @@
 {-# LANGUAGE ForeignFunctionInterface, EmptyDataDecls, CPP #-}
-
+ 
 module Cudd.C (
     CDdManager,
     CDdNode,
@@ -15,7 +15,7 @@ module Cudd.C (
     c_cuddZddToDot,
     c_cuddZddSub0,
     c_cuddZddSub1,
-    c_cuddZddDivide,
+    c_cuddZddProduct,
     c_cuddZddChange,
     c_cuddZddReadZero,
     c_cuddBddToDot,
@@ -156,8 +156,8 @@ foreign import ccall safe "cudd.h Cudd_zddChange_s"
 foreign import ccall safe "cudd.h Cudd_zddUnion_s"
     c_cuddZddUnion :: Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> IO (Ptr CDdNode)
 
-foreign import ccall safe "cudd.h Cudd_zddDivide_s"
-    c_cuddZddDivide :: Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> IO (Ptr CDdNode)
+foreign import ccall safe "cudd.h Cudd_zddProduct_s"
+    c_cuddZddProduct :: Ptr CDdManager -> Ptr CDdNode -> Ptr CDdNode -> IO (Ptr CDdNode)
 
 foreign import ccall safe "cudd.h Cudd_zddReadZero_s"
     c_cuddZddReadZero :: Ptr CDdManager -> IO (Ptr CDdNode)

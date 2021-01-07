@@ -23,8 +23,8 @@ DdNode *Cudd_zddChange_s (DdManager *m, DdNode *n, int var){
     Cudd_Ref(r);
     return r;
 }
-DdNode *Cudd_zddDivide_s (DdManager *m, DdNode *x, DdNode *y){
-    DdNode *r = Cudd_zddDivide(m, x, y);
+DdNode *Cudd_zddProduct_s (DdManager *m, DdNode *x, DdNode *y){
+    DdNode *r = Cudd_zddUnateProduct(m, x, y);
     assert(r);
     Cudd_Ref(r);
     return r;
