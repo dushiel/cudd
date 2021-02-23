@@ -50,6 +50,13 @@ DdNode *Cudd_zddReadZero_s(DdManager *m){
     return r;
 }
 
+DdNode *Cudd_zddComplement_s(DdManager *m, DdNode *n){
+    DdNode *r = Cudd_zddComplement(m, n);
+    assert(r);
+    Cudd_Ref(r);
+    return r;
+}
+
 DdNode * Cudd_zddDiff_s(DdManager *m, DdNode *x, DdNode *y ){
     DdNode *r = Cudd_zddDiff(m, x, y);
     assert(r);

@@ -19,6 +19,7 @@ module Cudd.C (
     c_cuddZddChange,
     c_cuddZddReadZero,
     c_cuddBddToDot,
+    c_cuddZddComplement,
     c_cuddDebugCheck,   --other stuff
     c_cuddReadOne,
     c_cuddReadLogicZero,
@@ -162,6 +163,8 @@ foreign import ccall safe "cudd.h Cudd_zddProduct_s"
 foreign import ccall safe "cudd.h Cudd_zddReadZero_s"
     c_cuddZddReadZero :: Ptr CDdManager -> IO (Ptr CDdNode)
 
+foreign import ccall safe "cudd.h Cudd_zddComplement_s"
+    c_cuddZddComplement :: Ptr CDdManager -> IO (Ptr CDdNode)
 
 -- Non zdd stuff
 

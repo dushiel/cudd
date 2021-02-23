@@ -24,6 +24,7 @@ module Cudd.Cudd (
     cuddZddToDot,
     cuddZddReadZero,
     cuddZddVarFromBdd,
+    cuddZddComplement,
     cuddBddToDot, --other stuff
     cuddBddAnd,
     cuddBddOr,
@@ -192,9 +193,14 @@ cuddZddProduct = cuddArg2 c_cuddZddProduct
 cuddZddDiff :: DdManager -> DdNode -> DdNode -> DdNode
 cuddZddDiff = cuddArg2 c_cuddZddDiff
 
+cuddZddComplement :: DdManager -> DdNode -> DdNode
+cuddZddComplement (DdManager d) (DdNode n) = DdNode $ unsafePerformIO $ withForeignPtr n $ \np -> do
+    node <- c_cuddZddPortFromBdd d np
+    newForeignPtrEnv deref d node
+
 cuddZddToDot :: DdManager -> DdNode -> String -> IO()
 cuddZddToDot (DdManager m) (DdNode n) file = 
-    withForeignPtr n $ \np -> do 
+    withForeignPtr n $ \np -> 
         c_cuddZddToDot m np f where
             f = unsafePerformIO $ newCString file
 
