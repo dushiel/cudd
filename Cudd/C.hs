@@ -20,6 +20,7 @@ module Cudd.C (
     c_cuddZddReadZero,
     c_cuddBddToDot,
     c_cuddZddComplement,
+    c_cuddRecursiveDerefZddPtr,
     c_cuddDebugCheck,   --other stuff
     c_cuddReadOne,
     c_cuddReadLogicZero,
@@ -39,7 +40,7 @@ module Cudd.C (
     c_cuddBddUnivAbstract,
     c_cuddIterDerefBdd,
     cuddRef,
-    c_cuddInit,
+    c_cuddInit, 
     c_cuddShuffleHeap,
     c_cuddSetVarMap,
     c_cuddBddVarMap,
@@ -398,6 +399,10 @@ foreign import ccall safe "cudd.h &Cudd_DelayedDerefBdd"
 
 foreign import ccall safe "cudd.h &Cudd_IterDerefBdd"
     c_cuddIterDerefBddPtr :: FunPtr (Ptr CDdManager -> Ptr CDdNode -> IO ())
+
+foreign import ccall safe "cudd.h &Cudd_RecursiveDerefZdd"
+    c_cuddRecursiveDerefZddPtr :: FunPtr (Ptr CDdManager -> Ptr CDdNode -> IO ())
+
 
 foreign import ccall safe "cudd.h Cudd_bddNewVar_s"
     c_cuddBddNewVar :: Ptr CDdManager -> IO (Ptr CDdNode)
